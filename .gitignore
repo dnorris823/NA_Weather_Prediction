@@ -4,3 +4,4 @@ labels.csv
 historical-hourly-weather-data
 .vscode
 .ipynb_checkpoints
+.DS_Store
