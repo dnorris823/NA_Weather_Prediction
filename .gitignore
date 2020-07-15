@@ -5,3 +5,8 @@ historical-hourly-weather-data
 .vscode
 .ipynb_checkpoints
 .DS_Store
+features_gen.csv
+features_gen_no_clear.csv
+labels_gen.csv
+labels_gen_no_clear.csv
+engineered_features.csv
