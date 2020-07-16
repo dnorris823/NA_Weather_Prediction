@@ -1,12 +1,8 @@
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
-# %%
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
-# %%
 city_attributes_df = pd.read_csv(
     "historical-hourly-weather-data/city_attributes.csv")
 humidity_df = pd.read_csv("historical-hourly-weather-data/humidity.csv")
@@ -18,7 +14,6 @@ wind_direction_df = pd.read_csv(
     "historical-hourly-weather-data/wind_direction.csv")
 wind_speed_df = pd.read_csv("historical-hourly-weather-data/wind_speed.csv")
 
-# %%
 city_attributes_df = city_attributes_df.drop(['City', 'Country'], axis=1)
 
 humidity_df = pd.read_csv("historical-hourly-weather-data/humidity.csv")
@@ -27,11 +22,10 @@ melt_names = ['Vancouver', 'Portland', 'San Francisco', 'Seattle', 'Los Angeles'
               'Chicago', 'Nashville', 'Indianapolis', 'Atlanta', 'Detroit', 'Jacksonville', 'Charlotte', 'Miami',
               'Pittsburgh', 'Toronto', 'Philadelphia', 'New York', 'Montreal', 'Boston', 'Beersheba', 'Tel Aviv District',
               'Eilat', 'Haifa', 'Nahariyya', 'Jerusalem']
-# print(melt_names)
+
 humidity_df = pd.melt(frame=humidity_df, id_vars=[
                       'datetime'], value_vars=melt_names, var_name='city', value_name='humidity')
 
-# %%
 melt_names = ['Vancouver', 'Portland', 'San Francisco', 'Seattle', 'Los Angeles', 'San Diego', 'Las Vegas', 'Phoenix',
               'Albuquerque', 'Denver', 'San Antonio', 'Dallas', 'Houston', 'Kansas City', 'Minneapolis', 'Saint Louis',
               'Chicago', 'Nashville', 'Indianapolis', 'Atlanta', 'Detroit', 'Jacksonville', 'Charlotte', 'Miami',
@@ -48,7 +42,6 @@ wind_direction_df = pd.melt(frame=wind_direction_df, id_vars=[
 wind_speed_df = pd.melt(frame=wind_speed_df, id_vars=[
                         'datetime'], value_vars=melt_names, var_name='city', value_name='wind speed')
 
-# %%
 df = humidity_df
 df['temperature'] = temperature_df['temperature']
 df['pressure'] = pressure_df['pressure']
@@ -56,7 +49,6 @@ df['weather_description'] = weather_description_df['weather description']
 df['wind direction'] = wind_direction_df['wind direction']
 df['wind speed'] = wind_speed_df['wind speed']
 
-# %%
 df.loc[df['city'] == 'Vancouver', 'Latitude'] = 49.249660
 df.loc[df['city'] == 'Vancouver', 'Longitude'] = -123.119339
 df.loc[df['city'] == 'Portland', 'Latitude'] = 45.523449
@@ -130,51 +122,30 @@ df.loc[df['city'] == 'Nahariyya', 'Longitude'] = 35.094090
 df.loc[df['city'] == 'Jerusalem', 'Latitude'] = 31.769039
 df.loc[df['city'] == 'Jerusalem', 'Longitude'] = 35.216331
 
-# %%
 df['datetime'] = pd.to_datetime(df['datetime'])
 
-
-# %%
 israel_rows_index = df[(df['city'] == 'Beersheba') | (df['city'] == 'Tel Aviv District') |
                        (df['city'] == 'Eilat') | (df['city'] == 'Haifa') |
                        (df['city'] == 'Nahariyya') | (df['city'] == 'Jerusalem')].index
 
 df = df.drop(israel_rows_index, inplace=False)
 
-# %%
 df = df.dropna()
 
-# %%
 df = df.reset_index(drop=True)
 
-# %%
 df.drop(['city'], axis=1, inplace=True)
 # use pd.concat to join the new columns with your original dataframe
 df_labels = df['weather_description']
 # now drop the original 'country' column (you don't need it anymore)
 df.drop(['weather_description'], axis=1, inplace=True)
 
-# %%
-df.head()
-
-# %%
-#t = pd.DatetimeIndex(df['datetime'])
-# t.month
-
-# %%
 df['month'] = pd.DatetimeIndex(df['datetime']).month
 df['day'] = pd.DatetimeIndex(df['datetime']).day
 df['hour'] = pd.DatetimeIndex(df['datetime']).hour
 
-# %%
-df.head(50)
-
-# %%
 df.drop(['datetime'], axis=1, inplace=True)
 
-# %%
-df.head()
-# %%
 df.to_csv('Training Data/features.csv', compression='zip')
 df_labels.to_csv('Training Data/labels.csv', compression='zip')
 features = pd.DataFrame(df)
@@ -182,25 +153,20 @@ labels = pd.DataFrame(df_labels)
 labels_bin = pd.DataFrame(df_labels)
 print("initial")
 
-# %%
 labels_bin.loc[labels_bin['weather_description'] !=
                'sky is clear', 'is_sky_clear'] = False
 labels_bin.loc[labels_bin['weather_description'] ==
                'sky is clear', 'is_sky_clear'] = True
 
-# %%
 labels_bin.drop(['weather_description'], axis=1, inplace=True)
 
-# %%
 labels_bin = pd.DataFrame(labels_bin)
 labels_bin.to_csv('Training Data/labels_bin.csv', compression='zip')
 
 print("binary")
 
-# %%
 engineered_features = features
 
-# %%
 engineered_features['day_avg_hum'] = 0
 engineered_features['month_avg_hum'] = 0
 engineered_features['year_avg_hum'] = 0
@@ -211,10 +177,6 @@ engineered_features['day_avg_press'] = 0
 engineered_features['month_avg_press'] = 0
 engineered_features['year_avg_press'] = 0
 
-# %%
-engineered_features.head()
-
-# %%
 engineered_features['day_avg_hum'] = engineered_features.iloc[:, 0].rolling(
     window=24).mean()
 engineered_features['month_avg_hum'] = engineered_features.iloc[:, 0].rolling(
@@ -236,7 +198,6 @@ engineered_features['month_avg_press'] = engineered_features.iloc[:, 2].rolling(
 engineered_features['year_avg_press'] = engineered_features.iloc[:, 2].rolling(
     window=8765).mean()
 
-# %%
 engineered_features['day_avg_hum'].fillna(
     engineered_features['day_avg_hum'].mean(), inplace=True)
 engineered_features['month_avg_hum'].fillna(
@@ -258,16 +219,13 @@ engineered_features['month_avg_press'].fillna(
 engineered_features['year_avg_press'].fillna(
     engineered_features['year_avg_press'].mean(), inplace=True)
 
-# %%
 engineered_features.to_csv(
     'Training Data/engineered_features.csv', compression='zip')
 
 print("engineered")
 
-# %%
 engineered_features['weather_description'] = labels
 
-# %%
 engineered_features.loc[engineered_features['weather_description'].str.contains(
     'clouds'), 'weather_description'] = 'Cloudy'
 engineered_features.loc[engineered_features['weather_description'].str.contains(
@@ -303,20 +261,10 @@ engineered_features.loc[engineered_features['weather_description'].str.contains(
 engineered_features.loc[engineered_features['weather_description'].str.contains(
     'sky is clear'), 'weather_description'] = 'Clear Weather'
 
-# %%
-engineered_features['weather_description'].value_counts()
-
-
-# %%
 features_gen_no_clear = []
 features_gen_no_clear = engineered_features[~engineered_features['weather_description'].str.contains(
     "Clear Weather")]
 
-
-# %%
-features_gen_no_clear['weather_description'].value_counts()
-
-# %%
 labels_gen = []
 labels_gen = engineered_features['weather_description']
 engineered_features.drop(['weather_description'], axis=1, inplace=True)
@@ -326,7 +274,6 @@ labels_gen_no_clear = []
 labels_gen_no_clear = features_gen_no_clear['weather_description']
 features_gen_no_clear.drop(['weather_description'], axis=1, inplace=True)
 
-# %%
 features_gen.to_csv('Training Data/features_gen.csv', compression='zip')
 labels_gen.to_csv('Training Data/labels_gen.csv', compression='zip')
 features_gen_no_clear.to_csv(
@@ -335,6 +282,3 @@ labels_gen_no_clear.to_csv(
     'Training Data/labels_gen_no_clear.csv', compression='zip')
 
 print("done with data preprocessing")
-
-
-# %%
