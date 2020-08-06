@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  natempprediction:
+    image: natempprediction
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "12345"

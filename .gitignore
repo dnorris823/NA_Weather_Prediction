@@ -9,3 +9,12 @@ features_gen_no_clear.csv
 labels_gen.csv
 labels_gen_no_clear.csv
 engineered_features.csv
+bin_model.pkl
+multi_model.pkl
+city_attributes.csv
+humidity.csv
+pressure.csv
+temperature.csv
+weather_description.csv
+wind_direction.csv
+wind_speed.csv
