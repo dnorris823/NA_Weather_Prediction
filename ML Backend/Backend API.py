@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, url_for, render_template, jsonify
 from sklearn.externals import joblib
 import os
 import pandas as pd
+import requests
 
 app = Flask(__name__)
 
@@ -56,17 +57,20 @@ def predict():
     multi_model = joblib.load("Saved Models/multi_model.pkl")
 
     model_input = request.json
+    print(model_input, flush=True)
     model_input = pd.DataFrame(model_input, index=[0])
     bin_prediction = bin_model.predict(model_input)
 
     if bin_prediction:
-        return jsonify({'prediction': "sky is clear"})
+        return jsonify({'prediction': "Clear Skies"})
     else:
-        return jsonify({'prediction': multi_model.predict(model_input)})
+        return jsonify({'prediction': str(multi_model.predict(model_input))})
+
+
+@app.route('/test_response', methods=['GET', 'POST'])
+def test_response():
+    return request.
 
 
 if __name__ == '__main__':
-
-    print('Models loaded')
-
     app.run(host="0.0.0.0", port=80, debug=True)

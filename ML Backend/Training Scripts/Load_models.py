@@ -38,18 +38,7 @@ engineered_features = pd.read_csv(
 
 engineered_features.drop(['Unnamed: 0'], axis=1, inplace=True)
 
-
-#model_input = pd.DataFrame(model_input, index=[0])
 #bin_prediction = bin_model.predict(engineered_features.tail(500))
+multi_prediction = multi_model.predict(engineered_features)
 
-predictions = []
-
-for i in range(0, 500):
-    for row in engineered_features.iloc[i]:
-        bin_pred = bin_model.predict(row)
-        if bin_pred:
-            predictions.append("sky is clear")
-        else:
-            predictions.append(multi_model.predict(row))
-
-print(predictions)
+print(pd.Series(multi_prediction).value_counts())

@@ -1,0 +1,73 @@
+{% block main %}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Single Prediction</h1>
+            <hr>
+            <form action="/predict" method="POST">
+
+                <div class="form-group">
+                    <label>Humidity</label>
+                    <input type="text" class="form-control" id="Humidity" name="Humidity" placeholder="%">
+                </div>
+
+                <div class="form-group">
+                    <label>Temperature</label>
+                    <input type="text" class="form-control" id="Temperature" name="Temperature" placeholder="K">
+                </div>
+
+                <div class="form-group">
+                    <label>Pressure</label>
+                    <input type="text" class="form-control" id="Pressure" name="Pressure" placeholder="hPa">
+                </div>
+
+                <div class="form-group">
+                    <label>Wind Direction</label>
+                    <input type="text" class="form-control" id="Wind_Direction" name="Wind_Direction" placeholder="°">
+                </div>
+
+                <div class="form-group">
+                    <label>Wind Speed</label>
+                    <input type="text" class="form-control" id="Wind_Speed" name="Wind_Speed" placeholder="mph">
+                </div>
+
+                <div class="form-group">
+                    <label>Latitude</label>
+                    <input type="text" class="form-control" id="Latitude" name="Latitude" placeholder="°">
+                </div>
+
+                <div class="form-group">
+                    <label>Longitude</label>
+                    <input type="text" class="form-control" id="Longitude" name="Longitude" placeholder="°">
+                </div>
+
+                <div class="form-group">
+                    <label>Month</label>
+                    <input type="text" class="form-control" id="Month" name="Month" placeholder="1-12">
+                </div>
+
+                <div class="form-group">
+                    <label>Day</label>
+                    <input type="text" class="form-control" id="Day" name="Day" placeholder="1-31">
+                </div>
+
+                <div class="form-group">
+                    <label>Hour</label>
+                    <input type="text" class="form-control" id="Hour" name="Hour" placeholder="0-23">
+                </div>
+                <button type="submit" class="btn btn-primary">Predict</button>
+
+                {% if feedback %}
+                <p class="text-danger float-right">{{ feedback }}</p>
+                {% endif %}
+
+                {% if prediction %}
+                <p class="text-danger float-right">Prediction is: {{ prediction }}</p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
