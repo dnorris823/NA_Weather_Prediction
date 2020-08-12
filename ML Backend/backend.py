@@ -69,7 +69,12 @@ def predict():
 
 @app.route('/test_response', methods=['GET', 'POST'])
 def test_response():
-    return request.
+    return request.text
+
+
+@app.route('/upload_file', methods=['POST'])
+def upload_file():
+    return request.files
 
 
 if __name__ == '__main__':

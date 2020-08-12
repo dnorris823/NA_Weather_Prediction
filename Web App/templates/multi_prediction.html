@@ -1,0 +1,14 @@
+<!doctype html>
+<title>Upload new File</title>
+<h1>Upload new File</h1>
+<form method=post enctype=multipart/form-data>
+    <input type=file name=file>
+    <input type=submit value=Upload>
+</form>
+{% if upload_complete %}
+<p class="text-danger float-right">{{ upload_complete }}</p>
+{% endif %}
+
+<form action="/move_to_backend" method=post>
+    <button type="submit" class="btn btn-primary">Move to Backend</button>
+</form>

@@ -1,13 +1,20 @@
-from flask import Flask, redirect, url_for, render_template, request, jsonify
+from flask import Flask, redirect, url_for, render_template, request, jsonify, flash
 import requests
+import os
+from werkzeug.utils import secure_filename
+import pandas as pd
+
+UPLOAD_FOLDER = 'Web App/user_files'
+ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-@app.route("/predict", methods=["GET", "POST"])
+@app.route("/single_prediction", methods=["GET", "POST"])
 def Home():
     if request.method == "POST":
-        #print(request.form, flush=True)
+        # print(request.form, flush=True)
 
         # make sure user entered a value for all boxes
         missing = list()
@@ -18,7 +25,7 @@ def Home():
 
         if missing:
             feedback = f"Missing fields for {', '.join(missing)}"
-            return render_template("/signup.html", feedback=feedback)
+            return render_template("/single_prediction.html", feedback=feedback)
         print("past missing", flush=True)
         # get all user input
         Humidity = request.form["Humidity"]
@@ -33,7 +40,6 @@ def Home():
         Hour = request.form["Hour"]
 
         # create json object with user input
-        '''
         prediction_input = {
             "humidity": Humidity,
             "temperature": Temperature,
@@ -56,7 +62,6 @@ def Home():
             "year_avg_press": 1018.11
         }
         '''
-
         prediction_input = {
             "humidity": 52,
             "Temperature": 281.98,
@@ -78,7 +83,7 @@ def Home():
             "month_avg_press": 1017.215068,
             "year_avg_press": 1017.478836
         }
-
+        '''
         print(prediction_input, flush=True)
 
         try:
@@ -98,11 +103,55 @@ def Home():
 
         except Exception as e:
             print(str(e), flush=True)
-        return render_template("/signup.html", prediction=prediction_final)
+        return render_template("/single_prediction.html", prediction=prediction_final)
 
-    return render_template("signup.html")
+    return render_template("single_prediction.html")
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/multi_prediction', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(
+                app.config['UPLOAD_FOLDER'], 'user_file.csv'))
+            return render_template("multi_prediction.html", upload_complete='Upload of ' + filename + ' complete!')
+    return render_template("multi_prediction.html")
+
+
+@app.route('/move_to_backend', methods=['GET', 'POST'])
+def move_to_backend():
+    if request.method == 'POST':
+        try:
+            user_file_pd = pd.read_csv(
+                "Web App/user_files/user_file.csv", sep='delimiter', header=None)
+            user_file_json = user_file_pd.to_json()
+            #print(user_file_json, flush=True)
+            move_to_back = requests.post(
+                'http://127.0.0.1:80/predict', json=user_file_json)
+
+            print(move_to_back, flush=True)
+            return render_template("multi_prediction.html")
+
+        except Exception as e:
+            print(str(e), flush=True)
+            return render_template("multi_prediction.html")
 
 
 if __name__ == "__main__":
-    print("hello")
     app.run()
