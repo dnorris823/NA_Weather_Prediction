@@ -1,6 +1,7 @@
 from sklearn.externals import joblib
 import os
 import pandas as pd
+import pprint
 
 if os.path.exists('ML Backend/Saved Models/bin_model.pkl') & os.path.exists('ML Backend/Saved Models/multi_model.pkl'):
     # Load "bin_model.pkl"
@@ -39,6 +40,27 @@ engineered_features = pd.read_csv(
 engineered_features.drop(['Unnamed: 0'], axis=1, inplace=True)
 
 #bin_prediction = bin_model.predict(engineered_features.tail(500))
-multi_prediction = multi_model.predict(engineered_features)
+#multi_prediction = multi_model.predict(engineered_features)
+results = []
 
-print(pd.Series(multi_prediction).value_counts())
+'''
+print(pd.DataFrame(engineered_features.head(1)).shape)
+temp_df = pd.DataFrame(engineered_features.loc[0])
+print(temp_df)
+print(temp_df.T.shape)
+'''
+engineered_features = engineered_features.tail(500)
+
+for ind in engineered_features.index:
+    bin_prediction = bin_model.predict(
+        pd.DataFrame(engineered_features.loc[ind]).T)
+
+    if(bin_prediction):
+        results.append("['clear skies']")
+    else:
+        results.append(str(multi_model.predict(
+            pd.DataFrame(engineered_features.loc[ind]).T)))
+
+results_df = pd.DataFrame(results, columns=['weather_desc'])
+print(results_df['weather_desc'].value_counts())
+# print(results)

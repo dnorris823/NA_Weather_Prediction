@@ -3,6 +3,8 @@ import requests
 import os
 from werkzeug.utils import secure_filename
 import pandas as pd
+import json
+import pprint
 
 UPLOAD_FOLDER = 'Web App/user_files'
 ALLOWED_EXTENSIONS = {'csv'}
@@ -40,6 +42,7 @@ def Home():
         Hour = request.form["Hour"]
 
         # create json object with user input
+        '''
         prediction_input = {
             "humidity": Humidity,
             "temperature": Temperature,
@@ -83,8 +86,8 @@ def Home():
             "month_avg_press": 1017.215068,
             "year_avg_press": 1017.478836
         }
-        '''
-        print(prediction_input, flush=True)
+
+        pprint.pprint(prediction_input)
 
         try:
             prediction_output = requests.post(
@@ -138,19 +141,46 @@ def upload_file():
 def move_to_backend():
     if request.method == 'POST':
         try:
+            '''
             user_file_pd = pd.read_csv(
-                "Web App/user_files/user_file.csv", sep='delimiter', header=None)
-            user_file_json = user_file_pd.to_json()
-            #print(user_file_json, flush=True)
-            move_to_back = requests.post(
-                'http://127.0.0.1:80/predict', json=user_file_json)
+                "Web App/user_files/user_file.csv")
+            user_file_pd.drop(['Unnamed: 0'], axis=1, inplace=True)
 
-            print(move_to_back, flush=True)
+            print(user_file_pd.head(100))
+            '''
+            #user_file_json = user_file_pd.to_json(orient="index")
+            #parsed = json.loads(user_file_json)
+
+            files = {'file': open('Web App/user_files/user_file.csv', 'rb')}
+
+            move_to_back = requests.post(
+                'http://127.0.0.1:80/upload_file', files=files)
+            print('1', flush=True)
+            pprint.pprint(move_to_back.text)
+            print('2', flush=True)
             return render_template("multi_prediction.html")
 
         except Exception as e:
             print(str(e), flush=True)
             return render_template("multi_prediction.html")
+
+
+@app.route('/json_test', methods=['GET', 'POST'])
+def json_test():
+    model_input = request.json
+    pprint.pprint('1')
+    pprint.pprint(model_input)
+    model_input = pd.DataFrame(data=model_input, index=[0], columns=['humidity', 'temperature', 'pressure', 'wind direction', 'wind speed',
+                                                                     'Latitude', 'Longitude', 'month', 'day', 'hour', 'day_avg_hum',
+                                                                     'month_avg_hum', 'year_avg_hum', 'day_avg_temp', 'month_avg_temp',
+                                                                     'year_avg_temp', 'day_avg_press', 'month_avg_press', 'year_avg_press'])
+    pprint.pprint('2')
+    pprint.pprint(model_input)
+    model_input = model_input.to_json(orient="index")
+    pprint.pprint('3')
+    pprint.pprint(model_input)
+    pprint.pprint('4')
+    return json.dumps(model_input)
 
 
 if __name__ == "__main__":
