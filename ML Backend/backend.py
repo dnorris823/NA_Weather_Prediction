@@ -82,7 +82,7 @@ def test_response():
     return request.text
 
 
-@ app.route('/multi_predict', methods=['POST'])
+@ app.route('/multi_predict', methods=['GET', 'POST'])
 def multi_predict():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -111,18 +111,21 @@ def multi_predict():
 
         multi_predictions = []
 
-        for ind in engineered_features.index:
-        bin_prediction = bin_model.predict(
-            pd.DataFrame(engineered_features.loc[ind]).T)
+        for ind in user_features.index:
+            bin_prediction = bin_model.predict(
+                pd.DataFrame(user_features.loc[ind]).T)
 
-        if(bin_prediction):
-            results.append("['clear skies']")
-        else:
-            results.append(str(multi_model.predict(
-                pd.DataFrame(engineered_features.loc[ind]).T)))
+            if(bin_prediction):
+                multi_predictions.append("['clear skies']")
+            else:
+                non_clear_prediction = multi_model.predict(
+                    pd.DataFrame(user_features.loc[ind]).T)
+                multi_predictions.append(pd.DataFrame(non_clear_prediction))
 
         multi_predictions = pd.DataFrame(
             multi_predictions, columns=['weather_desc'])
+
+        return multi_predictions['weather_desc'].to_json(orient='values')
     return "file not saved"
 
 

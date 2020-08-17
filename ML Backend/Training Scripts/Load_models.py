@@ -49,7 +49,7 @@ temp_df = pd.DataFrame(engineered_features.loc[0])
 print(temp_df)
 print(temp_df.T.shape)
 '''
-engineered_features = engineered_features.tail(500)
+engineered_features = engineered_features.tail(5)
 
 for ind in engineered_features.index:
     bin_prediction = bin_model.predict(
@@ -58,9 +58,10 @@ for ind in engineered_features.index:
     if(bin_prediction):
         results.append("['clear skies']")
     else:
-        results.append(str(multi_model.predict(
-            pd.DataFrame(engineered_features.loc[ind]).T)))
+        results.append(multi_model.predict(
+            pd.DataFrame(engineered_features.loc[ind]).T))
 
 results_df = pd.DataFrame(results, columns=['weather_desc'])
-print(results_df['weather_desc'].value_counts())
+print(results_df['weather_desc'])
+print(results_df['weather_desc'].to_json(orient='values'))
 # print(results)

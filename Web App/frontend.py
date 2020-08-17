@@ -141,20 +141,11 @@ def upload_file():
 def move_to_backend():
     if request.method == 'POST':
         try:
-            '''
-            user_file_pd = pd.read_csv(
-                "Web App/user_files/user_file.csv")
-            user_file_pd.drop(['Unnamed: 0'], axis=1, inplace=True)
-
-            print(user_file_pd.head(100))
-            '''
-            #user_file_json = user_file_pd.to_json(orient="index")
-            #parsed = json.loads(user_file_json)
 
             files = {'file': open('Web App/user_files/user_file.csv', 'rb')}
 
             move_to_back = requests.post(
-                'http://127.0.0.1:80/upload_file', files=files)
+                'http://127.0.0.1:80/multi_predict', files=files)
             print('1', flush=True)
             pprint.pprint(move_to_back.text)
             print('2', flush=True)
