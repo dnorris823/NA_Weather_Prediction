@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import json
 import pprint
+import prettytable
 
 UPLOAD_FOLDER = 'Web App/user_files'
 ALLOWED_EXTENSIONS = {'csv'}
@@ -146,17 +147,30 @@ def move_to_backend():
 
             move_to_back = requests.post(
                 'http://127.0.0.1:80/multi_predict', files=files)
+            prediction_text = move_to_back.text
+            prediction_text = prediction_text.replace('[', '')
+            prediction_text = prediction_text.replace(']', '')
+
             print('1', flush=True)
-            pprint.pprint(move_to_back.text)
+            pprint.pprint(prediction_text)
             print('2', flush=True)
-            return render_template("multi_prediction.html")
+
+            multi_prediction_df = pd.DataFrame(
+                data=prediction_text.split(','), columns=['Weather Descriptions: '])
+
+            multi_prediction_df_str = str(
+                multi_prediction_df.head(len(multi_prediction_df)))
+            multi_prediction_df_str = multi_prediction_df_str.replace(
+                ' ', '\n')
 
         except Exception as e:
             print(str(e), flush=True)
             return render_template("multi_prediction.html")
 
+        return render_template("multi_prediction.html", prediction=multi_prediction_df_str)
 
-@app.route('/json_test', methods=['GET', 'POST'])
+
+@ app.route('/json_test', methods=['GET', 'POST'])
 def json_test():
     model_input = request.json
     pprint.pprint('1')

@@ -12,3 +12,7 @@
 <form action="/move_to_backend" method=post>
     <button type="submit" class="btn btn-primary">Move to Backend</button>
 </form>
+
+{% if prediction %}
+<p class="text-danger float-right">{{ prediction }}</p>
+{% endif %}
