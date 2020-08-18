@@ -8,20 +8,53 @@
 {% if upload_complete %}
 <p class="text-danger float-right">{{ upload_complete }}</p>
 {% endif %}
-
+<br>
 <form action="/move_to_backend" method=post>
     <button type="submit" class="btn btn-primary">Move to Backend</button>
 </form>
+<br>
 
+<!-- Adding some style to table (OPTIONAL) -->
+<style type="text/css">
+    th:tr {
+        color: blue;
+
+    }
+
+    tr:nth-of-type(2n) {
+        border: 1px solid black;
+        background-color: rgba(150, 150, 150, 0.5);
+
+    }
+
+    td {
+        padding: 8px 8px;
+        border: 1px solid black;
+    }
+</style>
 {% if prediction %}
-<div>
-    <ol>
+<div style="height:500px;width:250px;border:1px solid #ccc;overflow:auto;">
+    <table style="margin-left: 20px;">
+        <!-- Table headers -->
+        <th>
+            <tr style="color: black; ">
+                <td>Row</td>
+                <td>Weather Description</td>
+            </tr>
+        </th>
+
         <!-- For loop logic of jinja template -->
         {%for i in range(0, prediction_text_len)%}
 
-        <li>{{prediction_text[i]}}</li>
-        {%endfor%}
+        <!-- table rows -->
+        <tr>
+            <td>{{i}}</td>
+            <td>{{prediction_text[i]}}</td>
 
-    </ol>
+            {%endfor%}
+
+        </tr>
+
+    </table>
 </div>
 {% endif %}

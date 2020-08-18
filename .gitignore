@@ -9,6 +9,8 @@ features_gen_no_clear.csv
 labels_gen.csv
 labels_gen_no_clear.csv
 engineered_features.csv
+engineered_features_short.csv
+engineered_features_100.csv
 bin_model.pkl
 multi_model.pkl
 city_attributes.csv
