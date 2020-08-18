@@ -5,7 +5,6 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import json
 import pprint
-import prettytable
 
 UPLOAD_FOLDER = 'Web App/user_files'
 ALLOWED_EXTENSIONS = {'csv'}
@@ -43,7 +42,7 @@ def Home():
         Hour = request.form["Hour"]
 
         # create json object with user input
-        '''
+
         prediction_input = {
             "humidity": Humidity,
             "temperature": Temperature,
@@ -87,7 +86,7 @@ def Home():
             "month_avg_press": 1017.215068,
             "year_avg_press": 1017.478836
         }
-
+        '''
         pprint.pprint(prediction_input)
 
         try:
@@ -150,42 +149,15 @@ def move_to_backend():
             prediction_text = move_to_back.text
             prediction_text = prediction_text.replace('[', '')
             prediction_text = prediction_text.replace(']', '')
+            prediction_text = prediction_text.split(',')
 
-            print('1', flush=True)
-            pprint.pprint(prediction_text)
-            print('2', flush=True)
-
-            multi_prediction_df = pd.DataFrame(
-                data=prediction_text.split(','), columns=['Weather Descriptions: '])
-
-            multi_prediction_df_str = str(
-                multi_prediction_df.head(len(multi_prediction_df)))
-            multi_prediction_df_str = multi_prediction_df_str.replace(
-                ' ', '\n')
+            prediction_text_len = len(prediction_text)
 
         except Exception as e:
             print(str(e), flush=True)
             return render_template("multi_prediction.html")
 
-        return render_template("multi_prediction.html", prediction=multi_prediction_df_str)
-
-
-@ app.route('/json_test', methods=['GET', 'POST'])
-def json_test():
-    model_input = request.json
-    pprint.pprint('1')
-    pprint.pprint(model_input)
-    model_input = pd.DataFrame(data=model_input, index=[0], columns=['humidity', 'temperature', 'pressure', 'wind direction', 'wind speed',
-                                                                     'Latitude', 'Longitude', 'month', 'day', 'hour', 'day_avg_hum',
-                                                                     'month_avg_hum', 'year_avg_hum', 'day_avg_temp', 'month_avg_temp',
-                                                                     'year_avg_temp', 'day_avg_press', 'month_avg_press', 'year_avg_press'])
-    pprint.pprint('2')
-    pprint.pprint(model_input)
-    model_input = model_input.to_json(orient="index")
-    pprint.pprint('3')
-    pprint.pprint(model_input)
-    pprint.pprint('4')
-    return json.dumps(model_input)
+        return render_template("multi_prediction.html", prediction=True, prediction_text_len=len(prediction_text), prediction_text=prediction_text)
 
 
 if __name__ == "__main__":

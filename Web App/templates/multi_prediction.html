@@ -14,5 +14,14 @@
 </form>
 
 {% if prediction %}
-<p class="text-danger float-right">{{ prediction }}</p>
+<div>
+    <ol>
+        <!-- For loop logic of jinja template -->
+        {%for i in range(0, prediction_text_len)%}
+
+        <li>{{prediction_text[i]}}</li>
+        {%endfor%}
+
+    </ol>
+</div>
 {% endif %}
