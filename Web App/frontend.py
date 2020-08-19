@@ -102,10 +102,9 @@ def Home():
             prediction_final = prediction_strings[1][3:len(
                 prediction_strings[1]) - 5]
 
-            print(prediction_final, flush=True)
-
         except Exception as e:
             print(str(e), flush=True)
+
         return render_template("/single_prediction.html", prediction=prediction_final)
 
     return render_template("single_prediction.html")
