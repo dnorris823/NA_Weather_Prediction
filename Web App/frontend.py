@@ -206,6 +206,9 @@ def move_to_backend():
             class_report.pop('macro avg')
             class_report.pop('weighted avg')
 
+            class_list = class_report.keys()
+            class_list = list(class_list)
+
             data = [
                 go.Bar(
                     x=prediction_text_df['weather_description'].value_counts(
@@ -230,6 +233,7 @@ def move_to_backend():
                                conf_matrix=conf_matrix,
                                len_conf_matrix=len_conf_matrix,
                                class_report=class_report,
+                               class_list=class_list,
                                len_class_matrix=len_class_matrix,
                                acc_score=acc_score,
                                graphJSON=graphJSON

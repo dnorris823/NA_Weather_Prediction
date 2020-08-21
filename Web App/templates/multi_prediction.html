@@ -56,6 +56,7 @@
     }
 </style>
 {% if prediction %}
+<h3>Predictions</h3>
 <div style="height:500px;width:250px;border:1px solid #ccc;overflow:auto;">
     <table style="margin-left: 20px;">
         <!-- Table headers -->
@@ -84,6 +85,7 @@
 <hr>
 <br>
 <div>
+    <h3>Accuracy</h3>
     <table style="margin-left: 20px;">
         <!-- table rows -->
         <tr>
@@ -95,6 +97,7 @@
 <br>
 <hr>
 <br>
+<h3>Classification Report</h3>
 <div style="height:400px;width:700px;border:1px solid #ccc;overflow:auto;">
     <table style="margin-left: 20px;">
         <!-- Table headers -->
@@ -124,6 +127,7 @@
 <br>
 <hr>
 <br>
+<h3>Confusion Matrix</h3>
 <div style="height:500px;width:700px;border:1px solid #ccc;overflow:auto;">
     <table style="margin-left: 20px;">
         <!-- Table headers -->
@@ -131,10 +135,10 @@
             <tr style="color: black; ">
                 <td>Confusion Matrix</td>
                 <!-- For loop logic of jinja template -->
-                {%for i in range(1, len_conf_matrix + 1)%}
+                {%for class in class_list%}
 
                 <!-- table rows -->
-                <td>Class {{i}}</td>
+                <td>{{class}}</td>
                 {%endfor%}
             </tr>
         </th>
@@ -144,7 +148,7 @@
 
         <!-- table rows -->
         <tr>
-            <td>Class {{i + 1}}</td>
+            <td>{{class_list[i]}}</td>
             {%for j in range(0, len_conf_matrix)%}
             <td>{{conf_matrix[i][j]}}</td>
 
@@ -157,6 +161,7 @@
 <br>
 <hr>
 <br>
+<h3>Frequency Chart</h3>
 <div class="chart" id="bargraph">
     <script>
         var graphs = {{ graphJSON | safe}};
