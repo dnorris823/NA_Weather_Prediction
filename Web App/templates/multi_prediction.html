@@ -5,16 +5,30 @@
     <button type="submit" class="btn btn-primary">Go To Single Prediction</button>
 </form>
 <hr>
-<form method=post enctype=multipart/form-data>
-    <input type=file name=file>
-    <input type=submit value=Upload>
+<h3>Upload User Features</h3>
+<form action="/upload_features" method=post enctype=multipart/form-data>
+    <input type=file name=file_features>
+    <input type=submit value='Upload Features'>
 </form>
-{% if upload_complete %}
-<p class="text-danger float-right">{{ upload_complete }}</p>
+{% if upload_complete_features %}
+<p class="text-danger float-right">{{ upload_complete_features }}</p>
 {% endif %}
 <br>
+<hr>
+<h3>Upload User Labels</h3>
+<form action="/upload_labels" method=post enctype=multipart/form-data>
+    <input type=file name=file_labels>
+    <input type=submit value='Upload Labels'>
+</form>
+{% if upload_complete_labels %}
+<p class="text-danger float-right">{{ upload_complete_labels }}</p>
+{% endif %}
+<br>
+<hr>
+<br>
+
 <form action="/move_to_backend" method=post>
-    <button type="submit" class="btn btn-primary">Move to Backend</button>
+    <button type="submit" class="btn btn-primary">Make Predictions</button>
 </form>
 <br>
 
@@ -57,6 +71,80 @@
 
         </tr>
 
+    </table>
+</div>
+<br>
+<hr>
+<br>
+<div>
+    <table style="margin-left: 20px;">
+        <!-- table rows -->
+        <tr>
+            <td>Accuracy</td>
+            <td>{{acc_score}}</td>
+        </tr>
+    </table>
+</div>
+<br>
+<hr>
+<br>
+<div style="height:400px;width:700px;border:1px solid #ccc;overflow:auto;">
+    <table style="margin-left: 20px;">
+        <!-- Table headers -->
+        <th>
+            <tr style="color: black; ">
+                <td>Classification Report</td>
+                <td>Precision</td>
+                <td>Recall</td>
+                <td>f1-Score</td>
+                <td>Support</td>
+            </tr>
+        </th>
+
+        <!-- For loop logic of jinja template -->
+        {%for key in class_report.keys()%}
+
+        <!-- table rows -->
+        <tr>
+            <td>{{key}}</td>
+            {%for value in class_report.get(key).keys()%}
+            <td>{{class_report.get(key).get(value)}}</td>
+            {%endfor%}
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+<br>
+<hr>
+<br>
+<div style="height:500px;width:700px;border:1px solid #ccc;overflow:auto;">
+    <table style="margin-left: 20px;">
+        <!-- Table headers -->
+        <th>
+            <tr style="color: black; ">
+                <td>Confusion Matrix</td>
+                <!-- For loop logic of jinja template -->
+                {%for i in range(1, len_conf_matrix + 1)%}
+
+                <!-- table rows -->
+                <td>Class {{i}}</td>
+                {%endfor%}
+            </tr>
+        </th>
+
+        <!-- For loop logic of jinja template -->
+        {%for i in range(0, len_conf_matrix)%}
+
+        <!-- table rows -->
+        <tr>
+            <td>Class {{i + 1}}</td>
+            {%for j in range(0, len_conf_matrix)%}
+            <td>{{conf_matrix[i][j]}}</td>
+
+            {%endfor%}
+
+        </tr>
+        {%endfor%}
     </table>
 </div>
 {% endif %}

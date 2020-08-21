@@ -5,12 +5,19 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import json
 import pprint
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
 
 UPLOAD_FOLDER = 'Web App/user_files'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+@app.route('/multi_prediction', methods=['GET', 'POST'])
+def multi_prediction():
+    return render_template("multi_prediction.html")
 
 
 @app.route("/single_prediction", methods=["GET", "POST"])
@@ -115,14 +122,14 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/multi_prediction', methods=['GET', 'POST'])
-def upload_file():
+@app.route('/upload_features', methods=['POST'])
+def upload_features():
     if request.method == 'POST':
         # check if the post request has the file part
-        if 'file' not in request.files:
+        if 'file_features' not in request.files:
             flash('No file part')
             return redirect(request.url)
-        file = request.files['file']
+        file = request.files['file_features']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
@@ -131,8 +138,29 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(
-                app.config['UPLOAD_FOLDER'], 'user_file.csv'))
-            return render_template("multi_prediction.html", upload_complete='Upload of ' + filename + ' complete!')
+                app.config['UPLOAD_FOLDER'], 'user_file_features.csv'))
+            return render_template("multi_prediction.html", upload_complete_features='Upload of ' + filename + ' complete!')
+        return render_template("multi_prediction.html")
+
+
+@app.route('/upload_labels', methods=['POST'])
+def upload_labels():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file_labels' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file_labels']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(
+                app.config['UPLOAD_FOLDER'], 'user_file_labels.csv'))
+            return render_template("multi_prediction.html", upload_complete_labels='Upload of ' + filename + ' complete!')
     return render_template("multi_prediction.html")
 
 
@@ -141,22 +169,71 @@ def move_to_backend():
     if request.method == 'POST':
         try:
 
-            files = {'file': open('Web App/user_files/user_file.csv', 'rb')}
+            files = {'file': open(
+                'Web App/user_files/user_file_features.csv', 'rb')}
 
             move_to_back = requests.post(
                 'http://127.0.0.1:80/multi_predict', files=files)
             prediction_text = move_to_back.text
             prediction_text = prediction_text.replace('[', '')
             prediction_text = prediction_text.replace(']', '')
+            prediction_text = prediction_text.replace('"', '')
+            prediction_text = prediction_text.replace("'", '')
+            prediction_text = prediction_text.replace("\\", '')
+
             prediction_text = prediction_text.split(',')
 
             prediction_text_len = len(prediction_text)
+
+            user_labels = pd.read_csv(
+                'Web App/user_files/user_file_labels.csv')
+
+            user_labels.drop(['Unnamed: 0'], axis=1, inplace=True)
+
+            prediction_text_df = pd.DataFrame(
+                prediction_text, columns=["weather_description"])
+
+            conf_matrix = confusion_matrix(user_labels, prediction_text_df)
+            len_conf_matrix = len(conf_matrix[0])
+            class_report = classification_report(
+                user_labels, prediction_text_df, output_dict=True)
+            len_class_matrix = len(class_report)
+            acc_score = accuracy_score(user_labels, prediction_text_df)
+
+            print('1', flush=True)
+            print(len(prediction_text_df), flush=True)
+            print(len(user_labels), flush=True)
+            print('2', flush=True)
+            print(conf_matrix, flush=True)
+            print(class_report, flush=True)
+            print(acc_score, flush=True)
+            print('3', flush=True)
+            class_report.pop('accuracy')
+            class_report.pop('macro avg')
+            class_report.pop('weighted avg')
+            print(class_report, flush=True)
+            print('4', flush=True)
+            print(class_report.keys(), flush=True)
+            print('5', flush=True)
+            keys = class_report.keys()
+            for key in keys:
+                print(class_report.get(key).keys(), flush=True)
+                for value in class_report.get(key).keys():
+                    print(class_report.get(key).get(value), flush=True)
 
         except Exception as e:
             print(str(e), flush=True)
             return render_template("multi_prediction.html")
 
-        return render_template("multi_prediction.html", prediction=True, prediction_text_len=len(prediction_text), prediction_text=prediction_text)
+        return render_template("multi_prediction.html",
+                               prediction=True,
+                               prediction_text_len=len(prediction_text),
+                               prediction_text=prediction_text,
+                               conf_matrix=conf_matrix,
+                               len_conf_matrix=len_conf_matrix,
+                               class_report=class_report,
+                               len_class_matrix=len_class_matrix,
+                               acc_score=acc_score)
 
 
 if __name__ == "__main__":

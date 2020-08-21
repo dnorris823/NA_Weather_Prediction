@@ -116,7 +116,7 @@ def multi_predict():
                 pd.DataFrame(user_features.loc[ind]).T)
 
             if(bin_prediction):
-                multi_predictions.append("['clear skies']")
+                multi_predictions.append("['Clear Weather']")
             else:
                 non_clear_prediction = multi_model.predict(
                     pd.DataFrame(user_features.loc[ind]).T)

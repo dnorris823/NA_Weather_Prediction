@@ -20,3 +20,11 @@ temperature.csv
 weather_description.csv
 wind_direction.csv
 wind_speed.csv
+Web App/user_files/user_file_features.csv
+Web App/user_files/user_file_labels.csv
+ML Backend/Training Data/labels_gen_100
+ML Backend/Training Data/labels_gen_100.csv
+ML Backend/Training Data/engineered_features_1000.csv
+ML Backend/Training Data/engineered_features_10000.csv
+ML Backend/Training Data/labels_gen_1000.csv
+ML Backend/Training Data/labels_gen_10000.csv
