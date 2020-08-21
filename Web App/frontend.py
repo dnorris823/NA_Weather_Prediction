@@ -6,6 +6,8 @@ import pandas as pd
 import json
 import pprint
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import plotly
+import plotly.graph_objs as go
 
 
 UPLOAD_FOLDER = 'Web App/user_files'
@@ -200,26 +202,22 @@ def move_to_backend():
             len_class_matrix = len(class_report)
             acc_score = accuracy_score(user_labels, prediction_text_df)
 
-            print('1', flush=True)
-            print(len(prediction_text_df), flush=True)
-            print(len(user_labels), flush=True)
-            print('2', flush=True)
-            print(conf_matrix, flush=True)
-            print(class_report, flush=True)
-            print(acc_score, flush=True)
-            print('3', flush=True)
             class_report.pop('accuracy')
             class_report.pop('macro avg')
             class_report.pop('weighted avg')
-            print(class_report, flush=True)
-            print('4', flush=True)
-            print(class_report.keys(), flush=True)
-            print('5', flush=True)
-            keys = class_report.keys()
-            for key in keys:
-                print(class_report.get(key).keys(), flush=True)
-                for value in class_report.get(key).keys():
-                    print(class_report.get(key).get(value), flush=True)
+
+            data = [
+                go.Bar(
+                    x=prediction_text_df['weather_description'].value_counts(
+                    ).index,
+                    y=prediction_text_df['weather_description'].value_counts()
+                )
+            ]
+
+            graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            print(
+                prediction_text_df['weather_description'].value_counts().index, flush=True)
 
         except Exception as e:
             print(str(e), flush=True)
@@ -233,7 +231,9 @@ def move_to_backend():
                                len_conf_matrix=len_conf_matrix,
                                class_report=class_report,
                                len_class_matrix=len_class_matrix,
-                               acc_score=acc_score)
+                               acc_score=acc_score,
+                               graphJSON=graphJSON
+                               )
 
 
 if __name__ == "__main__":
