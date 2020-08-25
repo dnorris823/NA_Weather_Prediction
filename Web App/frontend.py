@@ -23,7 +23,7 @@ def multi_prediction():
 
 
 @app.route("/single_prediction", methods=["GET", "POST"])
-def Home():
+def single_prediction():
     if request.method == "POST":
         # print(request.form, flush=True)
 
@@ -100,7 +100,7 @@ def Home():
 
         try:
             prediction_output = requests.post(
-                'http://127.0.0.1:80/predict', json=prediction_input)
+                'http://127.0.0.1:80/single_predict', json=prediction_input)
 
             prediction_output_text = prediction_output.text
             print(prediction_output_text, flush=True)
@@ -111,10 +111,10 @@ def Home():
             prediction_final = prediction_strings[1][3:len(
                 prediction_strings[1]) - 5]
 
+            return render_template("/single_prediction.html", prediction=prediction_final)
+
         except Exception as e:
             print(str(e), flush=True)
-
-        return render_template("/single_prediction.html", prediction=prediction_final)
 
     return render_template("single_prediction.html")
 
