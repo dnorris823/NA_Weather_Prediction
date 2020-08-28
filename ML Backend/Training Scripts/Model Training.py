@@ -21,7 +21,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # Create the model with 100 trees
 bin_model = RandomForestClassifier(n_estimators=10,
-                                   oob_score=True,
                                    n_jobs=-1,
                                    random_state=50,
                                    max_features="auto",
