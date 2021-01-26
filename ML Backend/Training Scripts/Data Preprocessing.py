@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
+# Read in all of the different csv files into Pandas DataFrames
 city_attributes_df = pd.read_csv(
     "ML Backend/historical-hourly-weather-data/city_attributes.csv")
 humidity_df = pd.read_csv(
@@ -20,6 +21,7 @@ wind_speed_df = pd.read_csv(
 
 city_attributes_df = city_attributes_df.drop(['City', 'Country'], axis=1)
 
+# Melt all of the Dataframes so that there is a value column and a location column
 melt_names = ['Vancouver', 'Portland', 'San Francisco', 'Seattle', 'Los Angeles', 'San Diego', 'Las Vegas', 'Phoenix',
               'Albuquerque', 'Denver', 'San Antonio', 'Dallas', 'Houston', 'Kansas City', 'Minneapolis', 'Saint Louis',
               'Chicago', 'Nashville', 'Indianapolis', 'Atlanta', 'Detroit', 'Jacksonville', 'Charlotte', 'Miami',
@@ -45,6 +47,7 @@ wind_direction_df = pd.melt(frame=wind_direction_df, id_vars=[
 wind_speed_df = pd.melt(frame=wind_speed_df, id_vars=[
                         'datetime'], value_vars=melt_names, var_name='city', value_name='wind speed')
 
+# Combine all of the DataFrames into one with different columns for each type of value
 df = humidity_df
 df['temperature'] = temperature_df['temperature']
 df['pressure'] = pressure_df['pressure']
@@ -52,6 +55,7 @@ df['weather_description'] = weather_description_df['weather description']
 df['wind direction'] = wind_direction_df['wind direction']
 df['wind speed'] = wind_speed_df['wind speed']
 
+# Convert the city column to a longitude and latitude column
 df.loc[df['city'] == 'Vancouver', 'Latitude'] = 49.249660
 df.loc[df['city'] == 'Vancouver', 'Longitude'] = -123.119339
 df.loc[df['city'] == 'Portland', 'Latitude'] = 45.523449
@@ -125,8 +129,10 @@ df.loc[df['city'] == 'Nahariyya', 'Longitude'] = 35.094090
 df.loc[df['city'] == 'Jerusalem', 'Latitude'] = 31.769039
 df.loc[df['city'] == 'Jerusalem', 'Longitude'] = 35.216331
 
+# Make sure datetime column is stored as Pandas datetime object
 df['datetime'] = pd.to_datetime(df['datetime'])
 
+# Drop all non-NA location rows so they do not skew the model
 israel_rows_index = df[(df['city'] == 'Beersheba') | (df['city'] == 'Tel Aviv District') |
                        (df['city'] == 'Eilat') | (df['city'] == 'Haifa') |
                        (df['city'] == 'Nahariyya') | (df['city'] == 'Jerusalem')].index
@@ -137,25 +143,33 @@ df = df.dropna()
 
 df = df.reset_index(drop=True)
 
+# drop the city column as it is no longer needed
 df.drop(['city'], axis=1, inplace=True)
-# use pd.concat to join the new columns with your original dataframe
+
+# Create a Dataframe to hold all of the features that we are labeling on
 df_labels = df['weather_description']
-# now drop the original 'country' column (you don't need it anymore)
+
+# Drop the weather_description feature from the originial DataFrame since it is now store in the labels Dataframe
 df.drop(['weather_description'], axis=1, inplace=True)
 
+# Create new columns for the month day and hour, drop the datetime column
 df['month'] = pd.DatetimeIndex(df['datetime']).month
 df['day'] = pd.DatetimeIndex(df['datetime']).day
 df['hour'] = pd.DatetimeIndex(df['datetime']).hour
 
 df.drop(['datetime'], axis=1, inplace=True)
 
+# Save the base feature and label DataFrames to csv files
 df.to_csv('ML Backend/Training Data/features.csv', compression='zip')
 df_labels.to_csv('ML Backend/Training Data/labels.csv', compression='zip')
+
+# Give slightly better names to DataFrames so things are less confusing
 features = pd.DataFrame(df)
 labels = pd.DataFrame(df_labels)
 labels_bin = pd.DataFrame(df_labels)
 print("initial")
 
+# Create new binary labels DataFrames base on labels DataFrame values "sky is clear" or someting else
 labels_bin.loc[labels_bin['weather_description'] !=
                'sky is clear', 'is_sky_clear'] = False
 labels_bin.loc[labels_bin['weather_description'] ==
@@ -163,13 +177,16 @@ labels_bin.loc[labels_bin['weather_description'] ==
 
 labels_bin.drop(['weather_description'], axis=1, inplace=True)
 
+# Save binary labels DataFrame to a csv file
 labels_bin = pd.DataFrame(labels_bin)
 labels_bin.to_csv('ML Backend/Training Data/labels_bin.csv', compression='zip')
 
 print("binary")
 
+# Create engineered_features DataFrame from features DataFrame
 engineered_features = features
 
+# create new columns for daily, monthly, and yearly rolling averages of humidity, temperature, and pressure
 engineered_features['day_avg_hum'] = 0
 engineered_features['month_avg_hum'] = 0
 engineered_features['year_avg_hum'] = 0
@@ -222,6 +239,7 @@ engineered_features['month_avg_press'].fillna(
 engineered_features['year_avg_press'].fillna(
     engineered_features['year_avg_press'].mean(), inplace=True)
 
+# Save to csv file
 engineered_features.to_csv(
     'ML Backend/Training Data/engineered_features.csv', compression='zip')
 
@@ -229,6 +247,7 @@ print("engineered")
 
 engineered_features['weather_description'] = labels
 
+# Condense down the number of possible labels to make classification a bit easier
 engineered_features.loc[engineered_features['weather_description'].str.contains(
     'clouds'), 'weather_description'] = 'Cloudy'
 engineered_features.loc[engineered_features['weather_description'].str.contains(
@@ -264,6 +283,7 @@ engineered_features.loc[engineered_features['weather_description'].str.contains(
 engineered_features.loc[engineered_features['weather_description'].str.contains(
     'sky is clear'), 'weather_description'] = 'Clear Weather'
 
+# Create a features DataFrame that does not contain any records that contain "Clear Weather"
 features_gen_no_clear = []
 features_gen_no_clear = engineered_features[~engineered_features['weather_description'].str.contains(
     "Clear Weather")]
